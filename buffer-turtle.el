@@ -37,6 +37,49 @@ turtle this is quite useful for following along.")
 (defvar buffer-turtle-last-position nil
   "Details of the previous painting position")
 
+(defvar buffer-turtle-charset-emoji
+  '(:turtle "🐢"
+            :pen-down " "
+            :left "⚙"
+            :left-up "⚙"
+            :left-down "⚙"
+            :right "⚙"
+            :right-up "⚙"
+            :right-down "⚙"
+            :down "⚙"
+            :up "⚙")
+  "A simple emoji charset. Problem here is that this doesn't match the width of space.")
+
+(defvar buffer-turtle-charset-interpunct
+  '(:turtle "x"
+            :pen-down " "
+            :left "·"
+            :left-up "·"
+            :left-down "·"
+            :right "·"
+            :right-up "·"
+            :right-down "·"
+            :down "·"
+            :up "·")
+  "A simple charset using the interpunct character for a somewhat balanced output.")
+
+(defvar buffer-turtle-charset-directional
+  '(:turtle "x"
+            :pen-down " "
+            :left "-"
+            :left-up "\\"
+            :left-down "/"
+            :right "-"
+            :right-up "/"
+            :right-down "\\"
+            :down "|"
+            :up "|")
+  "A charset changing with turtle direction. Ideal would be changing the last
+point also based on the current command, but that's not supperted currently.")
+
+(defvar buffer-turtle-charset buffer-turtle-charset-interpunct
+  "The character set to use for drawing")
+
 (defun buffer-turtle--insert-top-lines (num)
   "Insert NUM lines at the top of the buffer"
   (save-excursion
@@ -103,8 +146,8 @@ turtle this is quite useful for following along.")
         (setq buffer-turtle-last-position
               `(:x ,(current-column)
                    :y ,(line-number-at-pos)
-                   :c ,(if buffer-turtle-pen-down char " ")))
-        (buffer-turtle--insert-at-point "x"))
+                   :c ,(if buffer-turtle-pen-down char (plist-get buffer-turtle-charset :pen-down))))
+        (buffer-turtle--insert-at-point (plist-get buffer-turtle-charset :turtle)))
     (buffer-turtle--insert-at-point char)))
 
 (defun buffer-turtle--move-turtle (&optional direction)
@@ -118,21 +161,21 @@ turtle this is quite useful for following along.")
         (cond
          ((string-equal d "stop") t)
          ((string-equal d "right")
-          (setq c `(:x ,x :y ,y :c "·")))
+          (setq c `(:x ,x :y ,y :c ,(plist-get buffer-turtle-charset :right))))
          ((string-equal d "right-up")
-          (setq c `(:x ,x :y ,(- y 1) :c "·")))
+          (setq c `(:x ,x :y ,(- y 1) :c ,(plist-get buffer-turtle-charset :right-up))))
          ((string-equal d "right-down")
-          (setq c `(:x ,x :y ,(+ y 1) :c "·")))
+          (setq c `(:x ,x :y ,(+ y 1) :c ,(plist-get buffer-turtle-charset :right-down))))
          ((string-equal d "left")
-          (setq c `(:x ,(- x 2) :y ,y :c "·")))
+          (setq c `(:x ,(- x 2) :y ,y :c ,(plist-get buffer-turtle-charset :left))))
          ((string-equal d "left-up")
-          (setq c `(:x ,(- x 2) :y ,(- y 1) :c "·")))
+          (setq c `(:x ,(- x 2) :y ,(- y 1) :c ,(plist-get buffer-turtle-charset :left-up))))
          ((string-equal d "left-down")
-          (setq c `(:x ,(- x 2) :y ,(+ y 1) :c "·")))
+          (setq c `(:x ,(- x 2) :y ,(+ y 1) :c ,(plist-get buffer-turtle-charset :left-down))))
          ((string-equal d "up")
-          (setq c `(:x ,(- x 1 ):y ,(- y 1) :c "·")))
+          (setq c `(:x ,(- x 1 ):y ,(- y 1) :c ,(plist-get buffer-turtle-charset :up))))
          ((string-equal d "down")
-          (setq c `(:x ,(- x 1) :y ,(+ y 1) :c "·"))))
+          (setq c `(:x ,(- x 1) :y ,(+ y 1) :c ,(plist-get buffer-turtle-charset :down)))))
         (buffer-turtle--draw (plist-get c :c)
                                 (plist-get c :x)
                                 (plist-get c :y))))))
