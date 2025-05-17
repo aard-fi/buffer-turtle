@@ -24,6 +24,27 @@
 (defvar buffer-turtle-timer nil
   "The timer for the turtle")
 
+(defun buffer-turtle--insert-top-lines (num)
+  "Insert NUM lines at the top of the buffer"
+  (save-excursion
+    (goto-char (point-min))
+    (insert (make-string num ?\n))))
+
+(defun buffer-turtle--insert-bottom-lines (num)
+  "Insert NUM lines at the bottom of the buffer"
+  (save-excursion
+    (goto-char (point-max))
+    (insert (make-string num ?\n))))
+
+(defun buffer-turtle--insert-left-lines (num)
+  "Insert NUM vertical lines at the left side"
+  (save-excursion
+    (goto-char (point-min))
+    (let ((padding (make-string num ?\s)))
+      (while (not (eobp))
+        (insert padding)
+        (forward-line 1)))))
+
 (defun buffer-turtle--insert-at-point (char)
   "Replace the character at point with our turtle character"
   (when (and (not (eobp)) (> (length char) 0))
