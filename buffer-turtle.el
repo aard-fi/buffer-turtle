@@ -27,6 +27,9 @@
 (defvar buffer-turtle-pen-down t
   "Status of the turtles pen")
 
+(defvar buffer-turtle-last-position nil
+  "Details of the previous painting position")
+
 (defun buffer-turtle--insert-top-lines (num)
   "Insert NUM lines at the top of the buffer"
   (save-excursion
@@ -50,39 +53,62 @@
 
 (defun buffer-turtle--insert-at-point (char)
   "Replace the character at point with our turtle character"
-  (when (and (not (eobp)) (> (length char) 0))
+  (when (and (not (eobp)) (not (eolp)) (> (length char) 0))
     (delete-char (length char)))
   (insert char))
 
-(defun buffer-turtle--draw-turtle (&optional direction)
+(defun buffer-turtle--draw-at (char x y)
+  "Draw at a fixed position without moving point"
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line y)
+    (move-to-column x t)
+    (buffer-turtle--insert-at-point char)))
+
+(defun buffer-turtle--draw (char)
+  "Draw the turtle"
+  (message (format "%s %s %s" (point) (current-column) (line-number-at-pos)))
+  (when buffer-turtle-last-position
+    (buffer-turtle--draw-at
+     (plist-get buffer-turtle-last-position :c)
+     (plist-get buffer-turtle-last-position :x)
+     (plist-get buffer-turtle-last-position :y)))
+  (setq buffer-turtle-last-position
+        `(:x ,(current-column)
+             :y ,(line-number-at-pos)
+             :c ,(if buffer-turtle-pen-down char " ")))
+  (let ((turtle "x")
+        (draw-char (if buffer-turtle-pen-down char " ")))
+    (buffer-turtle--insert-at-point turtle)))
+
+(defun buffer-turtle--move-turtle (&optional direction)
   "Do the actual drawing"
   (when buffer-turtle-buffer
     (with-current-buffer buffer-turtle-buffer
-      (let ((d (or direction buffer-turtle-instruction)))
+      (let ((d (or direction buffer-turtle-instruction))
+            (col (current-column)))
         (cond
          ((string-equal d "stop") t)
          ((string-equal d "right")
-          (buffer-turtle--insert-at-point "-"))
+          (buffer-turtle--draw "·"))
          ((string-equal d "left")
-          (let ((col (current-column)))
-            (when (> col 1)
-              (goto-char (- (point) 2))
-              (buffer-turtle--insert-at-point "-"))))
+          (when (> col 1)
+            (goto-char (- (point) 2))
+            (buffer-turtle--draw "·")))
          ((string-equal d "up")
-          (let ((col (current-column)))
-            (forward-line -1)
-            (move-to-column col t)
-            (goto-char (- (point) 1)))
-          (buffer-turtle--insert-at-point "|"))
+          (forward-line -1)
+          (move-to-column col t)
+          (goto-char (- (point) 1))
+          (buffer-turtle--draw "·"))
          ((string-equal d "down")
-          (let ((col (current-column)))
-            (when (eq (line-number-at-pos) (line-number-at-pos (point-max)))
-              (goto-char (point-max))
-              (insert "\n"))
-            (forward-line 1)
-            (move-to-column col t)
-            (goto-char (- (point) 1)))
-          (buffer-turtle--insert-at-point "|")))))))
+          (when (eq (line-number-at-pos) (line-number-at-pos (point-max)))
+            (goto-char (point-max))
+            (insert "\n"))
+          (forward-line 1)
+          (move-to-column col t)
+          (goto-char (- (point) 1))
+          (buffer-turtle--draw "·")))))))
+
 (defun buffer-turtle-pen-up ()
   "Move the pen up"
   (interactive)
@@ -102,8 +128,9 @@ changed, otherwise the turtle needs to be controlled with manual draw commands"
   (when buffer-turtle-timer
     (buffer-turtle-kill))
   (setq buffer-turtle-buffer buffer)
+  (buffer-turtle-pen-down)
   (when (and mode (string-equal mode "timer"))
-    (setq buffer-turtle-timer (run-at-time "2 sec" 1 'buffer-turtle--draw-turtle))))
+    (setq buffer-turtle-timer (run-at-time "2 sec" 1 'buffer-turtle--move-turtle))))
 
 (defun buffer-turtle-left ()
   "Make the turle move left"
@@ -133,22 +160,22 @@ changed, otherwise the turtle needs to be controlled with manual draw commands"
 (defun buffer-turtle-draw-left ()
   "Make the turle draw left"
   (interactive)
-  (buffer-turtle--draw-turtle "left"))
+  (buffer-turtle--move-turtle "left"))
 
 (defun buffer-turtle-draw-right ()
   "Make the turtle draw right"
   (interactive)
-  (buffer-turtle--draw-turtle "right"))
+  (buffer-turtle--move-turtle "right"))
 
 (defun buffer-turtle-draw-up ()
   "Make the turtle draw up"
   (interactive)
-  (buffer-turtle--draw-turtle "up"))
+  (buffer-turtle--move-turtle "up"))
 
 (defun buffer-turtle-draw-down ()
   "Make the turtle draw down"
   (interactive)
-  (buffer-turtle--draw-turtle "down"))
+  (buffer-turtle--move-turtle "down"))
 
 (defun buffer-turtle-kill ()
   "Shoot the turtle and bury the corpse"
@@ -158,11 +185,31 @@ changed, otherwise the turtle needs to be controlled with manual draw commands"
     (setq buffer-turtle-buffer nil)
     (setq buffer-turtle-buffer nil)))
 
+(defun buffer-turtle-draw-square (length)
+  "Test function for drawing a simple square"
+  (dotimes (i length)
+    (buffer-turtle-draw-right))
+  (dotimes (i length)
+    (buffer-turtle-draw-down))
+  (dotimes (i length)
+    (buffer-turtle-draw-left))
+  (dotimes (i length)
+    (buffer-turtle-draw-up)))
+;; (buffer-turtle-start-turtle "*scratch*")
 ;; (buffer-turtle-left)
 ;; (buffer-turtle-right)
 ;; (buffer-turtle-up)
 ;; (buffer-turtle-down)
 ;; (buffer-turtle-stop)
+;; (buffer-turtle-pen-down)
+;; (buffer-turtle-pen-up)
+;; (buffer-turtle-draw-left)
+;; (buffer-turtle-draw-right)
+;; (buffer-turtle-draw-up)
+;; (buffer-turtle-draw-down)
+;; (buffer-turtle--draw-at "!" 22 22)
+;; (buffer-turtle--draw-at "!" 1 8)
+;; (buffer-turtle-draw-square 10)
 
 (provide 'buffer-turtle)
 ;;; buffer-turtle.el ends here
