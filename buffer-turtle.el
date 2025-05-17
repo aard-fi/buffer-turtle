@@ -24,6 +24,9 @@
 (defvar buffer-turtle-timer nil
   "The timer for the turtle")
 
+(defvar buffer-turtle-pen-down t
+  "Status of the turtles pen")
+
 (defun buffer-turtle--insert-top-lines (num)
   "Insert NUM lines at the top of the buffer"
   (save-excursion
@@ -80,6 +83,15 @@
             (move-to-column col t)
             (goto-char (- (point) 1)))
           (buffer-turtle--insert-at-point "|")))))))
+(defun buffer-turtle-pen-up ()
+  "Move the pen up"
+  (interactive)
+  (setq buffer-turtle-pen-down nil))
+
+(defun buffer-turtle-pen-down ()
+  "Move the pen down"
+  (interactive)
+  (setq buffer-turtle-pen-down t))
 
 (defun buffer-turtle-start-turtle (buffer &optional mode)
   "Start turtle painting in the given buffer.
