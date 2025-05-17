@@ -1,8 +1,5 @@
 * buffer turtles                                                      :TOC_4:
   - [[#introduction][Introduction]]
-    - [[#examples-for-auxiliary-bindings][Examples for auxiliary bindings]]
-  - [[#read-buffer-contents][Read buffer contents]]
-  - [[#clear-buffer][Clear buffer]]
 
 ** Introduction
 
@@ -18,43 +15,4 @@ This is a quick and dirty implementation of a turtle capable of going in four di
 
 gptel bindings are provided for both modes - but you'd only want to have one set loaded to avoid confusion.
 
-It also is useful to have bindings for clearing and reading the buffer available - in some cases giving explicit instructions to wait and check the buffer contents for expectet results improves things.
-
-*** Examples for auxiliary bindings
-** Read buffer contents
-
-#+BEGIN_SRC lisp
-  (defun gptel-tool--read-buffer-contents (buffer)
-    "Return contents of BUFFER."
-    (let ((buffer (get-buffer-create buffer)))
-      (with-current-buffer buffer
-        (concat (buffer-substring-no-properties (point-min) (point-max))))))
-
-  (gptel-make-tool
-   :function #'gptel-tool--read-buffer-contents
-   :name  "gptel-tool--read-buffer-contents"
-   :description "Read a buffers contents. If the buffer does not exist create it, and return an empty string. After calling this tool, stop. Then continue fulfilling user's request."
-   :args (list '(:name "buffer"
-                 :type string
-                 :description "The buffer to retrieve contents from."))
-   :category "emacs")
-#+END_SRC
-
-** Clear buffer
-
-#+BEGIN_SRC lisp
-  (defun gptel-tool--erase-buffer (buffer)
-    "Erase contents of BUFFER."
-    (let ((buffer (get-buffer-create buffer)))
-      (with-current-buffer buffer
-        (erase-buffer))))
-
-  (gptel-make-tool
-   :function #'gptel-tool--erase-buffer
-   :name  "gptel-tool--erase-buffer"
-   :description "Erase buffers contents. If the buffer does not exist create it, and return an empty string. After calling this tool, stop. Then continue fulfilling user's request."
-   :args (list '(:name "buffer"
-                 :type string
-                 :description "The buffer to erase contents in."))
-   :category "emacs")
-#+END_SRC
+For easier starting bindings for reading and clearing the turtle buffer are included as well - if you already have generic buffer bindings you may want to omit those.

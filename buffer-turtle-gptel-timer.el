@@ -100,5 +100,17 @@
  :description "Put the pen up (i.e., don't paint on movement)."
  :category "emacs")
 
+(gptel-make-tool
+ :function #'buffer-turtle-clear-buffer
+ :name  "buffer-turtle-clear-buffer"
+ :description "Clear the turtle buffer so you can start over."
+ :category "emacs")
+
+(gptel-make-tool
+ :function #'buffer-turtle-read-buffer
+ :name  "buffer-turtle-read-buffer"
+ :description "Return the content of the turtle buffer so you can verify your progress."
+ :category "emacs")
+
 (provide 'buffer-turtle-gptel-timer)
 ;;; buffer-turtle-gptel-timer.el ends here
