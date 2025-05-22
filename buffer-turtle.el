@@ -298,20 +298,6 @@ changed, otherwise the turtle needs to be controlled with manual draw commands"
     (setq buffer-turtle-buffer nil)
     (setq buffer-turtle-buffer nil)))
 
-(defun buffer-turtle-clear-buffer ()
-  "Clear the buffer turtle buffer"
-  (interactive)
-  (when buffer-turtle-buffer
-    (with-current-buffer buffer-turtle-buffer
-      (erase-buffer))))
-
-(defun buffer-turtle-read-buffer ()
-  "Return the turtle buffer contents"
-  (interactive)
-  (when buffer-turtle-buffer
-    (with-current-buffer buffer-turtle-buffer
-      (concat (buffer-substring-no-properties (point-min) (point-max))))))
-
 (defun buffer-turtle-draw-square (length)
   "Test function for drawing a simple square"
   (dotimes (i length)
@@ -368,7 +354,6 @@ changed, otherwise the turtle needs to be controlled with manual draw commands"
 ;; (buffer-turtle-draw-square 10)
 ;; (buffer-turtle-draw-negative-square 10)
 ;; (buffer-turtle-draw-hexagon 10)
-;; (buffer-turtle-clear-buffer)
 
 (provide 'buffer-turtle)
 ;;; buffer-turtle.el ends here

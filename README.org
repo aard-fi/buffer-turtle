@@ -15,4 +15,12 @@ This is a quick and dirty implementation of a turtle capable of going in four di
 
 gptel bindings are provided for both modes - but you'd only want to have one set loaded to avoid confusion.
 
-For easier starting bindings for reading and clearing the turtle buffer are included as well - if you already have generic buffer bindings you may want to omit those.
+Loading the tool bindings is easiest done via the [[https://github.com/aard-fi/gptel-tool-library][gptel-tool library]]:
+
+#+BEGIN_SRC elisp
+  (add-to-list 'load-path "/path/to/gptel-tool-library")
+  (add-to-list 'load-path "/path/to/buffer-turtle")
+  (require 'gptel-tool-library)
+  (dolist (module '("buffer" "buffer-turtle"))
+    (gptel-tool-library-load-module module)))
+#+END_SRC
